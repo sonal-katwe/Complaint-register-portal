@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Complaint Registration</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Complaint Registration</h1>
+        <form id="complaintForm">
+            <input type="text" id="customerName" placeholder="Your Name" required><br>
+            <textarea id="description" placeholder="Describe your complaint" required></textarea><br>
+            <button type="submit">Submit Complaint</button>
+        </form>
+        <div id="message"></div>
+    </div>
+
+    <script>
+        document.getElementById("complaintForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const name = document.getElementById("customerName").value;
+            const desc = document.getElementById("description").value;
+
+            try {
+                const response = await fetch("http://localhost:8080/complaints/add", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        customerName: name,
+                        description: desc
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    document.getElementById("message").innerText =
+                        "Complaint submitted successfully! Your ID is: " + result.id;
+                    document.getElementById("complaintForm").reset();
+                } else {
+                    const errorText = await response.text();
+                    document.getElementById("message").innerText = "Error: " + errorText;
+                }
+            } catch (error) {
+                document.getElementById("message").innerText =
+                    "Network Error: Could not submit the complaint.";
+            }
+        });
+    </script>
+</body>
+</html>
